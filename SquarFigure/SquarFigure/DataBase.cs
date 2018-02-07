@@ -11,7 +11,7 @@ namespace SquarFigure
     {
         private StatisticContext db;
 
-        public void AddDB(double delta, double x1, double x2,string func, double result)
+        public async Task AddDB(double delta, double x1, double x2,string func, double result)
         {
             db = new StatisticContext();
             db.Statistics.Load();
@@ -19,22 +19,22 @@ namespace SquarFigure
             Statistic stat = new Statistic {delta=delta, x1 = x1, x2 = x2, func = func, result = result };
             
             db.Statistics.Add(stat);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
 
-        public bool CheckData(double delta, double x1, double x2, string func)
+        public async Task<bool> CheckData(double delta, double x1, double x2, string func)
         {
                 
             db = new StatisticContext();
             db.Statistics.Load();
-            var check = db.Statistics.FirstOrDefault(x => (x.delta == delta) & (x.x1 == x1) & (x.x2 == x2) & (x.func == func));
+            var check = await db.Statistics.FirstOrDefaultAsync(x => (x.delta == delta) & (x.x1 == x1) & (x.x2 == x2) & (x.func == func));
             if (check == null) return false;
             else return true;
         }
 
-        public double RemoveData(double delta, double x1, double x2, string func)
+        public async Task<double> ReturnData(double delta, double x1, double x2, string func)
         {
-            var check = db.Statistics.First(x => (x.delta == delta) & (x.x1 == x1) & (x.x2 == x2) & (x.func == func));
+            var check = await db.Statistics.FirstOrDefaultAsync(x => (x.delta == delta) & (x.x1 == x1) & (x.x2 == x2) & (x.func == func));
             return check.result;
         }
     }

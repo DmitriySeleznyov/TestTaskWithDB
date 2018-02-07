@@ -8,7 +8,7 @@ namespace SquarFigure
 {
     class Calc
     {
-        public static string Calculate(double x1, double x2, double round, string func, double part)
+        public static async Task<string> Calculate(double x1, double x2, double round, string func, double part)
         {
             double a = x1;
             double b = x2;
@@ -20,28 +20,31 @@ namespace SquarFigure
             double h = (b - a) / n;
 
             DataBase d = new DataBase();
-
-            for (double i = a; i <= b - h; i += h)
+            double task = await Task.Run(async ()=>
             {
-                if (!(d.CheckData(round, i, i + h, func)))
+                for (double i = a; i < b; i += h)
                 {
-                    if (func == "sin(x+5)")
-                    { result += Math.Abs((Math.Sin(i + 5))); }
-                    if (func == "cos(2*x)")
-                    { result += Math.Abs(Math.Cos(2 * i)); }
-                    if (func == "sqrt(6-x)")
-                    { result += Math.Sqrt(Math.Abs(6 - i)); }
+                    if (!(await d.CheckData(round, i, i + h, func)))
+                    {
+                        if (func == "sin(x+5)")
+                        { result += Math.Abs((Math.Sin(i + 5))); }
+                        if (func == "cos(2*x)")
+                        { result += Math.Abs(Math.Cos(2 * i)); }
+                        if (func == "sqrt(6-x)")
+                        { result += Math.Sqrt(Math.Abs(6 - i)); }
 
-                    d.AddDB(round, i, i + h, func, Math.Round(result, delta));
+                        await d.AddDB(round, i, i + h, func, Math.Round(result, delta));
+                    }
+                    else
+                    {
+                        result = await d.ReturnData(round, i, i + h, func);
+                    }
                 }
-                else
-                {
-                    result+=d.RemoveData(round, i, i + h, func);
-                }
-            }
-            result *= h;
-
-            return Math.Round(result, delta).ToString();
+                 result *= h;
+                return result;
+            });
+            
+           return Math.Round(task, delta).ToString();
 
         }
 
